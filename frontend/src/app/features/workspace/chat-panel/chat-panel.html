@@ -1,0 +1,124 @@
+<div class="flex flex-col h-full bg-(--canvas)">
+
+  <!-- empty state -->
+  @if (showEmptyState()) {
+    <div class="flex-1 overflow-y-auto flex flex-col">
+      <div class="w-full max-w-225 mx-auto p-4 flex flex-col items-center gap-4 sm:gap-5 sm:justify-center flex-1 fade-in">
+        <div class="flex flex-col items-center gap-2 text-center">
+          <img src="assets/images/orb-shadow.svg" alt="" class="w-40 h-40" />
+          <span class="text-3xl font-extrabold tracking-[-0.03em] text-(--text)">
+            Hey{{ userName() ? ' ' + userName().split(' ')[0] : '' }}, what are you working on?
+          </span>
+          <span class="text-sm sm:text-base text-(--text-2)">
+            I guide you toward the answer with <strong class="font-bold text-(--text)">hints, not solutions</strong>, so the understanding stays yours.
+          </span>
+        </div>
+
+        <div class="w-full">
+          <app-chat-input-bar
+            [codeAttached]="codeAttached()"
+            [disabled]="!ws.connected()"
+            (messageSent)="sendWithContent($event)"
+            (attachCodeToggled)="attachCodeToggled.emit()"
+          />
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 w-full">
+          @for (action of quickActions; track action.icon) {
+            <button
+              class="py-3.5 px-4 rounded-2xl bg-(--surface) border border-(--border) text-left flex gap-3 cursor-pointer transition-all duration-150 hover:border-(--border-strong) hover:shadow-(--shadow-md) hover:-translate-y-0.5"
+              (click)="action.action === 'challenge' ? startChallenge.emit() : sendWithContent(action.message!)"
+            >
+              <span class="w-9.5 h-9.5 rounded-xl grid place-items-center bg-(--accent-soft) text-(--accent-strong) shrink-0">
+                <app-icon [name]="action.icon" [size]="18" />
+              </span>
+              <div class="min-w-0">
+                <div class="text-sm font-bold text-(--text) truncate">{{ action.title }}</div>
+                <div class="text-xs text-(--text-3) truncate">{{ action.subtitle }}</div>
+              </div>
+            </button>
+          }
+        </div>
+
+      </div>
+    </div>
+  }
+
+  <!-- active chat area -->
+  @if (!showEmptyState()) {
+    <div #scrollContainer class="flex-1 overflow-y-auto flex flex-col thin-scroll p-4">
+      <div class="w-full max-w-225 mx-auto flex flex-col gap-5.5">
+
+        <!-- exercise challenge card -->
+        @if (exerciseQuestion()) {
+          <div class="bg-(--accent-soft) rounded-2xl py-4 px-4.5 fade-in border border-(--border-accent-bold)">
+            <div class="flex items-center gap-2 mb-2.5">
+              <app-badge label="CHALLENGE" variant="lav" [solid]="true"><app-icon name="rocket-launch" [size]="12" class="text-(--on-accent)" /></app-badge>
+              @if (exerciseDifficulty()) {
+                <app-badge [label]="exerciseDifficulty()!" [variant]="exerciseDifficulty()!" />
+              }
+            </div>
+            <div class="prose" [innerHTML]="exerciseQuestion()! | markdown"></div>
+          </div>
+        }
+
+        <!-- chat messages -->
+        @for (msg of messages(); track msg.id || $index) {
+          <app-chat-message
+            [msg]="msg"
+            (feedback)="onFeedback($event)"
+          />
+        }
+
+        <!-- thinking indicator -->
+        @if (isWaiting() && !streamingContent()) {
+          <div class="flex gap-3 pr-[8%] fade-in">
+            <img src="assets/images/orb-logo.svg" alt="" class="w-8 h-8 shrink-0 mt-0.5" />
+            <div class="bg-(--surface) border border-(--border) rounded-tl-sm rounded-tr-2xl rounded-br-2xl rounded-bl-2xl py-3 px-4 shadow-(--shadow-sm)">
+              <span class="typewriter text-sm">Thinking...</span>
+            </div>
+          </div>
+        }
+
+        <!-- streaming indicator -->
+        @if (streamingContent()) {
+          <div class="flex gap-3 pr-[8%]">
+            <img src="assets/images/orb-logo.svg" alt="" class="w-8 h-8 shrink-0 mt-0.5" />
+            <div class="bg-(--surface) border border-(--border) rounded-tl-sm rounded-tr-2xl rounded-br-2xl rounded-bl-2xl py-3 px-4 shadow-(--shadow-sm) max-w-[85%] text-sm leading-[1.55] text-(--text)">
+              <span>{{ streamingContent() }}</span>
+              <span class="blink-cursor"></span>
+            </div>
+          </div>
+        }
+
+        <!-- parsons puzzle -->
+        @if (puzzleLines()) {
+          <app-parsons-puzzle
+            [lines]="puzzleLines()!"
+            (submitOrder)="onPuzzleSubmit($event)"
+          />
+        }
+
+      </div>
+    </div>
+
+    <!-- bottom composer area -->
+    <div class="border-t border-(--border) p-4 bg-(--canvas)">
+      <div class="w-full max-w-225 mx-auto">
+        @if (analysisMsg()) {
+          <div class="py-2 px-3 rounded-xl mb-2 bg-(--accent-soft) text-(--accent-strong) text-xs border border-(--border-accent)">
+            <span class="font-semibold">{{ analysisMsg().split(':')[0] }}:</span>
+            <span class="font-normal">{{ analysisMsg().split(':').slice(1).join(':') }}</span>
+          </div>
+        }
+        <app-chat-input-bar
+          [codeAttached]="codeAttached()"
+          [disabled]="!ws.connected()"
+          (messageSent)="sendWithContent($event)"
+          (attachCodeToggled)="attachCodeToggled.emit()"
+        />
+      </div>
+    </div>
+  }
+
+</div>

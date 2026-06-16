@@ -1,0 +1,44 @@
+<div class="flex flex-col h-full bg-(--surface)">
+  <div class="flex items-center gap-2.5 p-4 border-b border-(--border) bg-(--surface) flex-none">
+    <span class="flex items-center gap-1.75 text-sm font-bold text-(--text)">
+      <app-icon name="brackets-angle" class="shrink-0" />
+      Editor
+    </span>
+
+    <!-- programming language dropdown -->
+    <app-dropdown [(open)]="langDropdownOpen">
+      <button trigger
+        class="inline-flex items-center gap-2 h-9 px-3 rounded-xl text-sm font-semibold bg-(--surface) border border-(--border-strong) text-(--text) cursor-pointer font-[inherit] transition-all duration-150 hover:border-(--accent)"
+      >
+        {{ langLabel() }}
+        <app-icon name="caret-down" [size]="13" class="text-(--text-3) transition-[rotate] duration-150" [ngClass]="langDropdownOpen() ? 'rotate-180' : ''" />
+      </button>
+      <div panel class="absolute top-[calc(100%+0.375rem)] left-0 min-w-37.5 bg-(--surface) border border-(--border) rounded-xl shadow-(--shadow-pop) p-1.5 z-100 pop-in">
+        @for (lang of languages; track lang.value) {
+          <button
+            class="flex items-center w-full text-left py-2 px-2.75 rounded-xl text-sm font-medium text-(--text) border-none cursor-pointer font-[inherit] transition-[background] duration-120"
+            [ngClass]="lang.value === language() ? 'text-(--accent-strong) bg-(--accent-soft)' : 'bg-transparent hover:bg-(--sidebar-hover)'"
+            (click)="selectLanguage(lang.value)"
+          >
+            {{ lang.label }}
+          </button>
+        }
+      </div>
+    </app-dropdown>
+
+    <div class="flex-1"></div>
+
+    <!-- line count -->
+    <span class="text-xs text-(--text-3) font-mono">{{ lineCount() }} lines</span>
+
+    <!-- close editor button -->
+    <button
+      class="grid place-items-center w-9 h-9 rounded-xl border-none bg-transparent text-(--text-3) cursor-pointer transition-all duration-150 hover:bg-(--sidebar-hover) hover:text-(--text)"
+      (click)="closeEditor.emit()"
+      title="Close editor"
+    >
+      <app-icon name="caret-left" />
+    </button>
+  </div>
+  <div #editorContainer class="flex-1 bg-(--surface)"></div>
+</div>

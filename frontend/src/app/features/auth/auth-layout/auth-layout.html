@@ -1,0 +1,27 @@
+<div class="auth-shell flex h-full bg-(--canvas)">
+
+  <!-- left panel - form -->
+  <div class="form-panel flex flex-col gap-6 flex-[1_1_50%] max-lg:flex-[1_1_100%] min-w-0 p-4 sm:py-8.5 sm:px-10 overflow-y-auto">
+    <div class="flex items-center gap-2.5">
+      <img src="assets/images/orb-logo.svg" alt="" class="w-7.5 h-7.5 shrink-0" />
+      <span class="text-lg font-extrabold tracking-[-.02em] text-(--text)">Guardian</span>
+      <app-theme-toggle class="ml-auto" />
+    </div>
+
+    <div class="flex-1 flex flex-col justify-center items-center">
+      <div class="max-w-105 w-full">
+        <ng-content />
+      </div>
+    </div>
+  </div>
+
+  <!-- right panel - visual -->
+  <div class="visual-panel flex-[1_1_50%] min-w-0 pt-4 pr-4 pb-4 pl-0 max-lg:hidden">
+    <img
+      src="assets/images/login-image.svg"
+      alt="Guardian visual"
+      class="w-full h-full object-cover object-bottom-left rounded-3xl"
+    />
+  </div>
+
+</div>

@@ -1,0 +1,34 @@
+@if (open()) {
+  <!-- backdrop -->
+  <div
+    class="fixed inset-0 z-90 backdrop-blur-0.75 opacity-100 transition-opacity duration-300 bg-(--overlay)"
+    (click)="close()"
+  ></div>
+
+  <!-- panel -->
+  <div
+    class="fixed top-0 right-0 h-full w-[min(25rem,92vw)] z-95 bg-(--surface) border-l border-(--border) shadow-(--shadow-lg) flex flex-col translate-x-0 transition-transform duration-300"
+  >
+    <div class="flex items-center gap-2.5 p-4 border-b border-(--border)">
+      <div class="w-9.5 h-9.5 rounded-xl grid place-items-center bg-(--accent-soft) text-(--accent-strong) flex-none">
+        <app-icon name="file" [size]="18" />
+      </div>
+      <div class="flex flex-col min-w-0">
+        <span class="text-base font-extrabold tracking-[-0.02em] text-(--text) leading-[1.3]">{{ title() }}</span>
+        @if (subtitle()) {
+          <span class="text-xs text-(--text-3) leading-[1.3]">{{ subtitle() }}</span>
+        }
+      </div>
+      <button
+        class="icon-btn ml-auto flex-none text-(--text-3) hover:text-(--text)"
+        (click)="close()"
+      >
+        <app-icon name="x" [size]="18" />
+      </button>
+    </div>
+
+    <div class="flex-1 overflow-y-auto">
+      <ng-content />
+    </div>
+  </div>
+}

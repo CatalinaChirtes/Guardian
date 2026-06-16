@@ -1,0 +1,50 @@
+<app-dropdown [(open)]="dropdownOpen">
+  <button trigger
+    class="inline-flex items-center gap-2.25 py-1.75 pl-2.5 pr-3 rounded-xl text-sm font-semibold bg-(--surface) border border-(--border-strong) text-(--text) cursor-pointer transition-[background] duration-150"
+  >
+    <img [src]="providerLogo()" alt="" class="w-4.5 h-4.5 shrink-0" [class.dark:invert]="providerDarkInvert()" />
+
+    <span>{{ displayName() }}</span>
+
+    <!-- cloud / local badge -->
+    @if (isLocal()) {
+      <span class="px-1.75 py-[1px] text-[0.65rem] font-semibold rounded-full text-(--emerald) bg-(--emerald-soft) border border-(--border-emerald)">Local</span>
+    } @else {
+      <span class="px-1.75 py-[1px] text-[0.65rem] font-semibold rounded-full text-(--blue) bg-(--blue-soft) border border-(--border-blue)">Cloud</span>
+    }
+
+    <app-icon
+      name="caret-down"
+      [size]="14"
+      class="transition-[rotate] duration-200"
+      [ngClass]="dropdownOpen() ? 'rotate-180' : ''"
+    />
+  </button>
+
+  <!-- dropdown llm selection panel -->
+  <div panel class="pop-in absolute top-[calc(100%+0.375rem)] left-0 w-67.5 bg-(--surface) border border-(--border) rounded-2xl shadow-(--shadow-pop) p-1.75 z-60">
+    <div class="text-[0.65rem] font-bold tracking-[.09em] text-(--text-3) px-2.5 pt-1.5 pb-2 uppercase">Models</div>
+
+    @for (p of providers; track p.value) {
+      <button
+        (click)="selectProvider(p.value)"
+        class="w-full flex items-center gap-2.5 px-2.5 py-2.25 rounded-xl border-none cursor-pointer text-left"
+        [ngClass]="p.value === provider() ? 'bg-(--accent-soft) hover:bg-(--accent-soft)' : 'bg-transparent hover:bg-(--sidebar-hover)'"
+      >
+        <img [src]="p.logo" alt="" class="w-4.5 h-4.5 shrink-0" [class.dark:invert]="p.darkInvert" />
+
+        <div class="flex-1 min-w-0">
+          <div
+            class="text-sm font-semibold text-(--text)"
+            [ngClass]="p.value === provider() ? 'text-(--accent-strong)' : ''"
+          >{{ p.label }}</div>
+          <div class="text-xs text-(--text-3)">{{ p.hint }}</div>
+        </div>
+
+        @if (p.value === provider()) {
+          <app-icon name="check" class="shrink-0" />
+        }
+      </button>
+    }
+  </div>
+</app-dropdown>

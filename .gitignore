@@ -1,0 +1,42 @@
+# frontend
+frontend/node_modules/
+frontend/dist/
+frontend/tmp/
+frontend/out-tsc/
+frontend/.angular/cache
+frontend/coverage/
+frontend/.sass-cache/
+
+# backend
+backend/venv/
+backend/__pycache__/
+backend/**/__pycache__/
+backend/**/*.pyc
+backend/.pytest_cache/
+backend/.mypy_cache/
+*.egg-info/
+
+# data (runtime)
+data/*
+!data/.gitkeep
+backend/data/
+*.db
+
+# PID files
+*.pid
+
+# environment
+.env
+.env.*
+
+# IDE
+.idea/
+.vscode/*
+!.vscode/settings.json
+!.vscode/launch.json
+!.vscode/extensions.json
+.history/
+
+# OS
+.DS_Store
+Thumbs.db

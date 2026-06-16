@@ -1,0 +1,153 @@
+<div class="shell h-full flex overflow-hidden">
+
+  <!-- mobile overlay -->
+  @if (mobileMenuOpen()) {
+    <div class="fixed inset-0 z-40 bg-black/30 lg:hidden" (click)="mobileMenuOpen.set(false)"></div>
+  }
+
+  <!-- sidebar -->
+  <aside
+    class="sidebar bg-(--sidebar) border-r border-(--border) h-full flex flex-col gap-4 p-4 overflow-hidden flex-none z-50 transition-[width,transform] duration-[.26s] ease-in-out max-lg:fixed max-lg:inset-y-0 max-lg:left-0 max-lg:-translate-x-full max-lg:w-(--sidebar-w) lg:relative"
+    [ngClass]="[sidebarCollapsed() ? 'w-(--sidebar-w-collapsed)' : 'w-(--sidebar-w)', mobileMenuOpen() ? 'max-lg:translate-x-0!' : '']"
+  >
+    @if (!sidebarCollapsed() || mobileMenuOpen()) {
+      <div class="flex gap-2.75 items-center">
+        <img src="assets/images/orb-logo.svg" alt="" class="w-7.5 h-7.5 shrink-0" />
+        <div class="flex flex-col min-w-0">
+          <span class="text-lg font-extrabold tracking-[-0.02em] leading-none text-(--text)">Guardian</span>
+          <span class="text-[0.65rem] font-semibold tracking-[.09em] text-(--text-3) mt-0.75">SOCRATIC TUTOR</span>
+        </div>
+        <!-- desktop - collapse sidebar -->
+        <button
+          class="icon-btn ml-auto max-lg:hidden text-(--text-2) hover:text-(--text)"
+          (click)="toggleSidebar()"
+          title="Collapse sidebar"
+        >
+          <app-icon name="sidebar-simple" />
+        </button>
+        <!-- mobile - close menu -->
+        <button
+          class="icon-btn ml-auto hidden max-lg:grid text-(--text-2) hover:text-(--text)"
+          (click)="mobileMenuOpen.set(false)"
+          title="Close menu"
+        >
+          <app-icon name="list" />
+        </button>
+      </div>
+    } @else {
+      <div class="flex flex-col items-center gap-2">
+        <img src="assets/images/orb-logo.svg" alt="" class="w-7.5 h-7.5 shrink-0" />
+        <button
+          class="icon-btn text-(--text-2) hover:text-(--text)"
+          (click)="toggleSidebar()"
+          title="Expand sidebar"
+        >
+          <app-icon name="sidebar-simple" />
+        </button>
+      </div>
+    }
+
+    <!-- nav items -->
+    <nav class="flex flex-col gap-0.75">
+      <button
+        (click)="onChatClick()"
+        class="nav-item flex items-center gap-3 rounded-xl text-sm font-semibold border-none w-full text-left no-underline transition-[background,color] duration-150 leading-none hover:bg-(--sidebar-hover)"
+        [ngClass]="(sidebarCollapsed() ? 'justify-center px-0 py-2.75' : 'px-3 py-2.75') + ' ' + (chatActive() ? 'text-(--accent-strong) bg-(--accent-soft)' : 'text-(--text-2) bg-transparent')"
+        title="Chat"
+      >
+        <app-icon name="chat-circle" [size]="18" />
+        @if (!sidebarCollapsed()) {
+          <span>Chat</span>
+        }
+      </button>
+
+      <a
+        routerLink="/practice"
+        routerLinkActive="!text-(--accent-strong) !bg-(--accent-soft)"
+        class="nav-item flex items-center gap-3 rounded-xl text-sm font-semibold text-(--text-2) bg-transparent border-none w-full text-left no-underline transition-[background,color] duration-150 leading-none hover:bg-(--sidebar-hover)"
+        [ngClass]="sidebarCollapsed() ? 'justify-center px-0 py-2.75' : 'px-3 py-2.75'"
+        title="Practice"
+      >
+        <app-icon name="rocket-launch" [size]="18" />
+        @if (!sidebarCollapsed()) {
+          <span>Practice</span>
+        }
+      </a>
+
+      <button
+        class="nav-item flex items-center gap-3 rounded-xl text-sm font-semibold text-(--text-2) bg-transparent border-none w-full text-left no-underline transition-[background,color] duration-150 leading-none hover:bg-(--sidebar-hover)"
+        [ngClass]="sidebarCollapsed() ? 'justify-center px-0 py-2.75' : 'px-3 py-2.75'"
+        (click)="documentsClicked.emit(); mobileMenuOpen.set(false)"
+        title="Documents"
+      >
+        <app-icon name="file" [size]="18" />
+        @if (!sidebarCollapsed()) {
+          <span class="flex-1 text-left">Documents</span>
+          @if (documentCount() > 0) {
+            <span class="text-xs font-bold text-(--text-3)">{{ documentCount() }}</span>
+          }
+        }
+      </button>
+    </nav>
+
+    <!-- recent sessions + user profile -->
+    <div class="flex flex-col flex-1 min-h-0">
+      @if (!sidebarCollapsed()) {
+        <div class="flex flex-col flex-1 min-h-0 gap-2">
+          <div class="flex items-center">
+            <span class="text-xs font-bold tracking-[.09em] text-(--text-3) uppercase">RECENT</span>
+          </div>
+
+          <div class="flex-1 overflow-y-auto flex flex-col gap-0.5 thin-scroll">
+            @for (session of sessions(); track session.id) {
+              <button
+                class="flex items-start gap-2.5 w-full px-2.5 py-2 rounded-xl border-none text-left transition-[background] duration-150"
+                [ngClass]="session.id === activeSessionId() ? 'bg-(--sidebar-hover)' : 'bg-transparent hover:bg-(--sidebar-hover)'"
+                (click)="onSessionClick(session.id)"
+              >
+                @if (session.solved) {
+                  <app-icon name="check" [size]="14" class="flex-none mt-0.5 text-(--emerald)" />
+                } @else {
+                  <span
+                    class="w-1.75 h-1.75 rounded-[0.1875rem] flex-none mt-1.5 transition-shadow duration-150"
+                    [ngClass]="(session.session_type === 'challenge' ? 'bg-(--accent)' : session.session_type === 'theory' ? 'bg-(--emerald)' : 'bg-(--blue)') + ' ' + (session.id === activeSessionId() ? 'shadow-[0_0_0_3px_var(--accent-ring)]' : '')"
+                  ></span>
+                }
+                <span
+                  class="text-sm flex-1 min-w-0 truncate leading-[1.4]"
+                  [ngClass]="session.id === activeSessionId() ? 'font-semibold text-(--text)' : 'font-medium text-(--text-2)'"
+                >
+                  {{ session.title || (session.session_type === 'challenge' ? 'Challenge' : session.session_type === 'theory' ? 'Theory' : 'Chat') }}
+                </span>
+              </button>
+            } @empty {
+              <span class="px-2.5 py-2 text-xs text-(--text-3) block">No recent sessions</span>
+            }
+          </div>
+        </div>
+      }
+
+      <div class="mt-auto border-t border-(--border) pt-4">
+        <app-user-profile [collapsed]="sidebarCollapsed()" (logout)="onLogout()" />
+      </div>
+    </div>
+  </aside>
+
+  <!-- main content area -->
+  <main class="main flex-1 min-w-0 h-full bg-(--canvas) flex flex-col overflow-hidden">
+    <!-- mobile header (small screens only) -->
+    <div class="hidden max-lg:flex items-center gap-2.5 p-4 border-b border-(--border) bg-(--canvas)">
+      <button class="icon-btn text-(--text-2)" (click)="mobileMenuOpen.set(true)">
+        <app-icon name="list" [size]="18" />
+      </button>
+      <div class="flex items-center gap-2">
+        <img src="assets/images/orb-logo.svg" alt="" class="w-6 h-6 shrink-0" />
+        <span class="text-lg font-extrabold tracking-[-0.02em] leading-none text-(--text)">Guardian</span>
+      </div>
+      <div class="ml-auto flex items-center">
+        <ng-content select="[mobile-actions]" />
+      </div>
+    </div>
+    <ng-content />
+  </main>
+</div>

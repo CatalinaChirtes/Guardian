@@ -1,0 +1,6 @@
+<div (click)="toggle()">
+  <ng-content select="[trigger]" />
+</div>
+@if (open()) {
+  <ng-content select="[panel]" />
+}

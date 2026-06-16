@@ -1,0 +1,11 @@
+<button
+  (click)="theme.toggle()"
+  class="icon-btn text-(--text-2) hover:text-(--accent-strong)"
+  [title]="isDark() ? 'Switch to light mode' : 'Switch to dark mode'"
+>
+  @if (isDark()) {
+    <app-icon name="sun" [size]="18" />
+  } @else {
+    <app-icon name="moon" [size]="18" />
+  }
+</button>

@@ -1,0 +1,36 @@
+<div class="bg-(--surface) border border-(--border-strong) rounded-2xl shadow-(--shadow-sm) p-3 transition-[border-color,box-shadow] duration-150 focus-within:border-(--accent) focus-within:shadow-[0_0_0_0.1875rem_var(--accent-ring)]">
+  <input
+    id="chat-input"
+    name="chat-input"
+    class="w-full border-none bg-transparent text-(--text) pb-1 text-base leading-normal placeholder:text-(--text-3)"
+    [(ngModel)]="inputText"
+    (keydown.enter)="send()"
+    [disabled]="disabled()"
+    placeholder="Describe what you're stuck on..."
+    autocomplete="off"
+  />
+
+  <div class="flex gap-2 mt-1.5 items-center">
+    <!-- code toggle -->
+    <button
+      class="px-2.75 py-1.75 rounded-xl text-sm font-semibold inline-flex items-center gap-1.5 transition-all duration-150 cursor-pointer hover:border-(--border-strong)"
+      [ngClass]="codeAttached() ? 'text-(--accent-strong) bg-(--accent-soft) border border-transparent' : 'text-(--text-2) bg-transparent border border-(--border)'"
+      (click)="toggleCode()"
+    >
+      <app-icon name="brackets-angle" class="code-toggle-icon" />
+      {{ codeAttached() ? 'Code attached' : 'Attach code' }}
+    </button>
+
+    <div class="flex-1"></div>
+
+    <!-- send button -->
+    <button
+      class="w-9.5 h-9.5 rounded-xl grid place-items-center border-none p-0 transition-[background] duration-150"
+      [ngClass]="inputText.trim() && !disabled() ? 'bg-(--accent) text-(--on-accent) cursor-pointer hover:bg-(--accent-strong)' : 'bg-(--surface-2) text-(--text-3) cursor-default'"
+      [disabled]="!inputText.trim() || disabled()"
+      (click)="send()"
+    >
+      <app-icon name="paper-plane-tilt" class="send-icon" />
+    </button>
+  </div>
+</div>

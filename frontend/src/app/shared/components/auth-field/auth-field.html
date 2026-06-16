@@ -1,0 +1,10 @@
+<div class="flex flex-col gap-1.75">
+  <label [for]="fieldId()" class="text-xs font-semibold text-(--text-2)">{{ label() }}</label>
+  <div
+    class="h-11.5 px-3.25 flex items-center gap-2.5 bg-(--surface) border border-(--border-strong) rounded-xl transition-all duration-150"
+    [ngClass]="focused() ? 'border-(--accent) shadow-[0_0_0_0.1875rem_var(--accent-ring)]' : ''"
+  >
+    <app-icon [name]="icon()" class="shrink-0 transition-colors duration-150 text-(--text-3)" [ngClass]="focused() ? 'text-(--accent)' : ''" />
+    <ng-content />
+  </div>
+</div>

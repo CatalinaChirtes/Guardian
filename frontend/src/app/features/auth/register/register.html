@@ -1,0 +1,103 @@
+<app-auth-layout>
+  <div class="flex flex-col gap-6">
+    @if (success()) {
+      <div class="flex flex-col items-center gap-4 text-center py-8">
+        <div class="w-16 h-16 rounded-2xl bg-(--accent-soft) grid place-items-center text-(--accent-strong)">
+          <app-icon name="envelope-simple" [size]="32" />
+        </div>
+        <span class="text-3xl font-extrabold tracking-[-.03em] text-(--text)">Check your email</span>
+        <span class="text-base text-(--text-2) leading-normal max-w-80">
+          We've sent a confirmation link to <strong class="font-semibold text-(--text)">{{ email }}</strong>. Click the link to activate your account, then come back to <a routerLink="/login" class="font-semibold text-(--accent-strong) underline">sign in</a>.
+        </span>
+        <span class="text-sm text-(--text-3)">Don't see it? Check your spam folder.</span>
+      </div>
+    } @else {
+      <div class="flex flex-col gap-2.5">
+        <span class="text-4xl font-extrabold tracking-[-.035em] leading-[1.05] text-(--text)">Create<br>your account.</span>
+        <span class="text-base text-(--text-2) leading-normal">
+          Use the email address you provided in the <strong class="font-semibold text-(--accent-strong)">pre-study survey</strong> to get started.
+        </span>
+      </div>
+      @if (error()) {
+        <div class="py-3 px-3.5 rounded-xl text-(--rose) text-sm font-semibold bg-(--rose-soft) border border-(--border-rose)">{{ error() }}</div>
+      }
+
+      <form (ngSubmit)="onRegister()" class="flex flex-col gap-4.5">
+      <app-auth-field label="Email" icon="envelope-simple" fieldId="reg-email">
+        <input
+          id="reg-email"
+          type="email"
+          [(ngModel)]="email"
+          name="email"
+          required
+          placeholder="your.email@example.com"
+          class="flex-1 border-none bg-transparent text-(--text) text-sm outline-none min-w-0 placeholder:text-(--text-3)"
+        />
+      </app-auth-field>
+
+      <app-auth-field label="Password" icon="lock-simple" fieldId="reg-password">
+        <input
+          id="reg-password"
+          [type]="showPassword() ? 'text' : 'password'"
+          [(ngModel)]="password"
+          name="password"
+          required
+          minlength="8"
+          class="flex-1 border-none bg-transparent text-(--text) text-sm outline-none min-w-0 placeholder:text-(--text-3)"
+        />
+        <button
+          type="button"
+          (click)="showPassword.update(v => !v)"
+          class="flex items-center justify-center bg-none border-none p-0 cursor-pointer text-(--text-3) shrink-0 transition-colors duration-150 hover:text-(--text-2)"
+        >
+          @if (showPassword()) {
+            <app-icon name="eye-slash" />
+          } @else {
+            <app-icon name="eye" />
+          }
+        </button>
+      </app-auth-field>
+      <span class="flex items-center gap-1.25 text-xs text-(--text-3) -mt-3">
+        <app-icon name="compass" [size]="12" />
+        At least 8 characters
+      </span>
+
+      <app-auth-field label="Confirm Password" icon="lock-simple" fieldId="reg-confirm">
+        <input
+          id="reg-confirm"
+          [type]="showConfirm() ? 'text' : 'password'"
+          [(ngModel)]="confirmPassword"
+          name="confirmPassword"
+          required
+          class="flex-1 border-none bg-transparent text-(--text) text-sm outline-none min-w-0 placeholder:text-(--text-3)"
+        />
+        <button
+          type="button"
+          (click)="showConfirm.update(v => !v)"
+          class="flex items-center justify-center bg-none border-none p-0 cursor-pointer text-(--text-3) shrink-0 transition-colors duration-150 hover:text-(--text-2)"
+        >
+          @if (showConfirm()) {
+            <app-icon name="eye-slash" />
+          } @else {
+            <app-icon name="eye" />
+          }
+        </button>
+      </app-auth-field>
+
+      <button
+        type="submit"
+        [disabled]="loading()"
+        class="w-full py-3 px-5 rounded-xl text-base font-semibold bg-(--accent) text-(--on-accent) border-none cursor-pointer transition-opacity duration-150 disabled:cursor-not-allowed"
+        [ngClass]="loading() ? 'opacity-80' : ''"
+      >
+        {{ loading() ? 'Creating account…' : 'Register' }}
+      </button>
+    </form>
+
+      <div class="flex gap-3 pt-2.5 pr-2.5 pb-2.5 pl-4.5 border border-(--border-strong) rounded-2xl items-center">
+        <span class="text-sm font-semibold text-(--text-2) flex-1">Already have an account?</span>
+        <a routerLink="/login" class="inline-block py-2 px-4 rounded-xl text-sm font-bold text-(--text) bg-(--surface) border border-(--border-strong) no-underline transition-colors duration-150 hover:bg-(--border)">Sign in</a>
+      </div>
+    }
+  </div>
+</app-auth-layout>

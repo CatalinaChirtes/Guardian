@@ -1,0 +1,94 @@
+<app-sidebar-layout
+  [sessions]="api.sessions()"
+  [activeSessionId]="sessionId()"
+  [documentCount]="api.documentCount()"
+  (newChat)="startNewChat()"
+  (sessionSelected)="resumeSession($event)"
+  (documentsClicked)="toggleDocs()"
+  (logout)="auth.logout()"
+>
+  <!-- mobile header actions (shown in the sidebar of the mobile header) -->
+  <div mobile-actions>
+    <app-top-bar
+      [provider]="llmProvider()"
+      [editorOpen]="editorOpen()"
+      [splitMode]="splitMode()"
+      [exerciseId]="exerciseId()"
+      (providerChange)="onProviderChange($event)"
+      (openEditor)="openEditorPanel()"
+      (closeEditor)="closeEditorPanel()"
+      (splitModeChange)="onSplitModeChange($event)"
+      (closeSession)="closeChallenge()"
+      [mobileMode]="true"
+    />
+  </div>
+
+  <!-- top bar (hidden on mobile/tablet, shown on desktop with sidebar) -->
+  <app-top-bar
+    [provider]="llmProvider()"
+    [editorOpen]="editorOpen()"
+    [splitMode]="splitMode()"
+    [exerciseId]="exerciseId()"
+    (providerChange)="onProviderChange($event)"
+    (openEditor)="openEditorPanel()"
+    (closeEditor)="closeEditorPanel()"
+    (splitModeChange)="onSplitModeChange($event)"
+    (closeSession)="closeChallenge()"
+  />
+
+  <!-- main content -->
+  @if (initialLoading()) {
+    <div class="flex-1 flex items-center justify-center">
+      <div class="flex flex-col items-center gap-3">
+        <img src="assets/images/orb-shadow.svg" alt="" class="w-10 h-10 opacity-60" />
+        <span class="text-sm text-(--text-3)">Loading session...</span>
+      </div>
+    </div>
+  } @else {
+    <!-- mobile - stacked, tablet+desktop - side-by-side -->
+    <div class="flex-1 flex flex-col sm:flex-row overflow-hidden min-h-0">
+      <!-- code editor (visible only in split mode when editor is open) -->
+      @if (editorOpen() && splitMode()) {
+        <div class="max-sm:h-[30%] sm:w-1/2 sm:min-w-0 border-b sm:border-b-0 sm:border-r border-(--border) flex flex-col overflow-visible max-sm:overflow-visible">
+          <app-code-editor
+            [language]="language()"
+            [initialCode]="starterCode()"
+            [restoredCode]="restoredCode()"
+            (languageChange)="language.set($event)"
+            (codeChange)="onCodeChange($event)"
+            (closeEditor)="closeEditorPanel()"
+          />
+        </div>
+      }
+
+      <!-- chat panel -->
+      <div
+        class="flex flex-col min-w-0 min-h-0 overflow-hidden"
+        [ngClass]="editorOpen() && splitMode() ? 'max-sm:flex-1 sm:w-1/2' : 'flex-1'"
+      >
+        @if (sessionId()) {
+          <app-chat-panel
+            [sessionId]="sessionId()"
+            [currentCode]="currentCode()"
+            [exerciseQuestion]="exerciseQuestion()"
+            [exerciseDifficulty]="exerciseDifficulty()"
+            [historyMessages]="historyMessages()"
+            [codeAttached]="editorOpen()"
+            (attachCodeToggled)="editorOpen() ? closeEditorPanel() : openEditorPanel()"
+            (startChallenge)="onStartRandomChallenge()"
+          />
+        }
+      </div>
+    </div>
+  }
+
+  <!-- documents drawer -->
+  <app-drawer
+    [open]="docsOpen()"
+    title="Course Documents"
+    [subtitle]="api.documentCount() + '/10 uploaded'"
+    (closed)="closeDocs()"
+  >
+    <app-doc-panel (docsChanged)="onDocumentCountChange($event)" />
+  </app-drawer>
+</app-sidebar-layout>

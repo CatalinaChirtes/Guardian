@@ -1,0 +1,237 @@
+<app-sidebar-layout
+  [sessions]="api.sessions()"
+  activeSessionId=""
+  [documentCount]="api.documentCount()"
+  (newChat)="startNewChat()"
+  (sessionSelected)="resumeSession($event)"
+  (documentsClicked)="docsOpen.update(v => !v)"
+  (logout)="auth.logout()"
+>
+  <div class="practice-page flex-1 overflow-y-auto bg-(--canvas) p-4 thin-scroll">
+    <div class="practice-container max-w-225 mx-auto flex flex-col gap-5">
+      <!-- header -->
+      <div class="flex flex-col gap-2">
+        <span class="text-xs font-bold tracking-widest text-(--accent-strong) uppercase">Challenge Mode</span>
+        <span class="text-3xl font-extrabold tracking-[-.03em] text-(--text)">Practice</span>
+        <span class="text-sm text-(--text-2) max-w-140 leading-normal">
+          Sharpen your skills on real problems from the APPS dataset. Guardian guides you with hints, you write the solution.
+        </span>
+      </div>
+
+      <!-- tabs -->
+      <div class="tabs flex gap-1 border-b border-(--border)">
+        @for (tab of tabs; track tab.key) {
+          <button
+            (click)="setTab(tab.key)"
+            class="py-2.75 px-1 text-sm font-semibold border-0 border-b-2 bg-none cursor-pointer transition-all duration-150 hover:text-(--text) inline-flex items-center font-[inherit]"
+            [ngClass]="activeTab() === tab.key ? 'text-(--text) border-b-(--accent)' : 'text-(--text-2) border-b-transparent'"
+          >
+            {{ tab.label }}
+            @if (tab.countSignal && tab.countSignal().length > 0) {
+              <span
+                class="text-xs font-bold py-px px-1.75 rounded-full ml-1.5"
+                [ngClass]="activeTab() === tab.key ? 'bg-(--accent-soft) text-(--accent-strong)' : 'bg-(--surface-2) text-(--text-3)'"
+              >{{ tab.countSignal().length }}</span>
+            }
+          </button>
+        }
+      </div>
+
+      <!-- all tab controls -->
+      @if (activeTab() === 'all') {
+        <div class="controls-row flex items-center gap-2.5 flex-wrap">
+          <!-- difficulty dropdown -->
+          <app-dropdown [(open)]="diffDropdownOpen">
+            <button trigger class="inline-flex items-center gap-2 py-2.25 px-3.25 rounded-xl text-sm font-semibold bg-(--surface) border border-(--border-strong) text-(--text) cursor-pointer font-[inherit] transition-all duration-150 hover:border-(--accent)">
+              <app-icon name="funnel" [size]="15" class="text-(--text-2)" />
+              {{ difficultyLabel() }}
+              <app-icon name="caret-down" [size]="14" class="text-(--text-3) transition-[rotate] duration-150" [ngClass]="diffDropdownOpen() ? 'rotate-180' : ''" />
+            </button>
+            <div panel class="absolute top-[calc(100%+0.375rem)] left-0 min-w-45 bg-(--surface) border border-(--border) rounded-xl shadow-(--shadow-pop) p-1.5 z-50 pop-in">
+              @for (opt of difficultyOptions; track opt.value) {
+                <button
+                  class="flex items-center gap-2.25 w-full text-left py-2.25 px-2.75 rounded-xl text-sm font-medium text-(--text) border-0 cursor-pointer transition-all duration-150"
+                  [ngClass]="opt.value === difficulty() ? 'text-(--accent-strong) bg-(--accent-soft) hover:bg-(--accent-soft)' : 'bg-transparent hover:bg-(--sidebar-hover)'"
+                  (click)="selectDifficulty(opt.value)"
+                >
+                  @if (opt.dot) {
+                    <span class="w-2 h-2 rounded-full shrink-0" [style.background]="opt.dot"></span>
+                  }
+                  {{ opt.label }}
+                </button>
+              }
+            </div>
+          </app-dropdown>
+
+          <div class="segmented-control p-0.75 gap-0.5 bg-(--surface-2) border border-(--border) rounded-xl inline-flex">
+            <button
+              (click)="setBrowseMode('random')"
+              class="py-1.75 px-3.5 rounded-xl text-sm font-semibold hover:text-(--text) border-0 cursor-pointer inline-flex items-center gap-1.5 transition-all duration-150 font-[inherit]"
+              [ngClass]="browseMode() === 'random' ? 'text-(--text) bg-(--surface) shadow-(--shadow-sm)' : 'bg-transparent text-(--text-2)'"
+            >
+              <app-icon name="arrows-clockwise" [size]="14" />
+              Random
+            </button>
+            <button
+              (click)="setBrowseMode('browse')"
+              class="py-1.75 px-3.5 rounded-xl text-sm font-semibold hover:text-(--text) border-0 cursor-pointer inline-flex items-center gap-1.5 transition-all duration-150 font-[inherit]"
+              [ngClass]="browseMode() === 'browse' ? 'text-(--text) bg-(--surface) shadow-(--shadow-sm)' : 'bg-transparent text-(--text-2)'"
+            >
+              <app-icon name="list-bullets" [size]="14" />
+              Browse all
+            </button>
+          </div>
+
+          @if (browseMode() === 'browse' && totalCount() > 0) {
+            <span class="text-sm text-(--text-3) ml-auto">{{ totalCount() }} problems</span>
+          }
+        </div>
+      }
+
+      <!-- all tab content -->
+      @if (activeTab() === 'all') {
+        @if (loading()) {
+          <span class="text-sm text-(--text-3) py-5 block">Loading exercises...</span>
+        }
+        @if (exercises().length === 0 && !loading()) {
+          <app-empty-state icon="squares-four" title="No exercises found" subtitle="The dataset may still be loading on the server." />
+        }
+        <div class="flex flex-col gap-2.5">
+          @for (ex of exercises(); track ex.id) {
+            <app-exercise-card [exercise]="ex" [status]="getStatus(ex.id)" (cardClicked)="openDetail($event)" (continueClicked)="continueExercise($event)" />
+          }
+        </div>
+        @if (exercises().length > 0 && browseMode() === 'random') {
+          <div class="flex justify-center">
+            <button (click)="refresh()" class="btn-ghost inline-flex items-center gap-1.75 py-2.25 px-4.5 rounded-xl text-sm font-semibold bg-(--surface) border border-(--border-strong) text-(--text) cursor-pointer transition-all duration-150 font-[inherit] hover:bg-(--sidebar-hover) disabled:opacity-35 disabled:cursor-not-allowed">
+              <app-icon name="arrows-clockwise" [size]="14" />
+              Show different problems
+            </button>
+          </div>
+        }
+        @if (browseMode() === 'browse' && totalPages() > 1) {
+          <div class="flex items-center justify-center gap-3">
+            <button
+              (click)="prevPage()"
+              [disabled]="offset() === 0"
+              class="page-btn grid place-items-center w-9 h-9 rounded-xl bg-(--surface) border border-(--border-strong) text-(--text-2) cursor-pointer transition-all duration-150 hover:bg-(--sidebar-hover) hover:text-(--text) disabled:opacity-30 disabled:cursor-not-allowed"
+            >
+              <app-icon name="caret-left" />
+            </button>
+            <span class="text-sm text-(--text-2)">
+              Page {{ currentPage() }} of {{ totalPages() }}
+            </span>
+            <button
+              (click)="nextPage()"
+              [disabled]="exercises().length < limit"
+              class="page-btn grid place-items-center w-9 h-9 rounded-xl bg-(--surface) border border-(--border-strong) text-(--text-2) cursor-pointer transition-all duration-150 hover:bg-(--sidebar-hover) hover:text-(--text) disabled:opacity-30 disabled:cursor-not-allowed"
+            >
+              <app-icon name="caret-right" />
+            </button>
+          </div>
+        }
+      }
+
+      <!-- started tab -->
+      @if (activeTab() === 'started') {
+        @if (startedExercises().length === 0) {
+          <app-empty-state icon="rocket-launch" title="No challenges in progress" subtitle="Start a challenge from the All tab!" />
+        }
+        <div class="flex flex-col gap-2.5">
+          @for (ex of startedExercises(); track ex.id) {
+            <app-exercise-card [exercise]="ex" [status]="getStatus(ex.id)" (cardClicked)="openDetail($event)" (continueClicked)="continueExercise($event)" />
+          }
+        </div>
+      }
+
+      <!-- solved tab -->
+      @if (activeTab() === 'solved') {
+        @if (solvedExercises().length === 0) {
+          <app-empty-state icon="star-four" title="No solved challenges yet" subtitle="Complete a challenge to see it here!" />
+        }
+        <div class="flex flex-col gap-2.5">
+          @for (ex of solvedExercises(); track ex.id) {
+            <app-exercise-card [exercise]="ex" [status]="getStatus(ex.id)" (cardClicked)="openDetail($event)" (continueClicked)="continueExercise($event)" />
+          }
+        </div>
+      }
+    </div>
+  </div>
+
+
+  <!-- exercise detail modal -->
+  @if (selectedExercise(); as ex) {
+    <app-modal [open]="true" (closed)="closeDetail()">
+      <div modal-header class="flex items-center gap-2">
+        <app-badge [label]="ex.difficulty" [variant]="ex.difficulty" />
+        @if (getStatus(ex.id) === 'solved') {
+          <app-badge label="Solved" variant="lav"><app-icon name="check" [size]="11" /></app-badge>
+        } @else if (getStatus(ex.id) === 'started') {
+          <app-badge label="In progress" variant="lav"><app-icon name="play" [size]="11" /></app-badge>
+        }
+        <span class="text-xs text-(--text-3) font-mono">#{{ ex.id }}</span>
+      </div>
+
+      <div modal-body class="flex flex-col gap-5">
+        <div class="flex flex-col gap-2.5">
+          <span class="text-xs font-bold tracking-widest uppercase text-(--text-3)">Problem</span>
+          <div class="text-sm leading-[1.6] text-(--text-2) prose" [innerHTML]="ex.question | markdown"></div>
+        </div>
+        @if (ex.starter_code) {
+          <div class="flex flex-col gap-2.5">
+            <span class="text-xs font-bold tracking-widest uppercase text-(--text-3)">Starter Code</span>
+            <pre class="bg-(--surface-2) border border-(--border) rounded-xl py-3.5 px-4 font-mono text-sm leading-[1.6] text-(--text) overflow-x-auto m-0 whitespace-pre-wrap wrap-break-word"><code>{{ ex.starter_code }}</code></pre>
+          </div>
+        }
+      </div>
+
+      <div modal-footer class="flex items-center justify-end gap-2.5">
+        <button
+          (click)="closeDetail()"
+          class="py-2.25 px-4.5 text-sm font-semibold bg-none border-0 text-(--text-2) cursor-pointer transition-all duration-150 font-[inherit] hover:text-(--text)"
+        >
+          Close
+        </button>
+        @if (getStatus(ex.id) === 'started') {
+          <button
+            (click)="continueExercise(ex)"
+            class="py-2.25 px-4.5 rounded-xl text-sm font-semibold bg-(--accent) border-0 text-(--on-accent) cursor-pointer transition-all duration-150 inline-flex items-center gap-1.5 font-[inherit] hover:bg-(--accent-strong)"
+          >
+            <app-icon name="play" [size]="14" />
+            Continue
+          </button>
+        } @else if (getStatus(ex.id) === 'solved') {
+          <button
+            (click)="continueExercise(ex)"
+            class="btn-ghost inline-flex items-center gap-1.75 py-2.25 px-4.5 rounded-xl text-sm font-semibold bg-(--surface) border border-(--border-strong) text-(--text) cursor-pointer transition-all duration-150 font-[inherit] hover:bg-(--sidebar-hover)"
+          >
+            View History
+          </button>
+          <button
+            (click)="startExercise(ex)"
+            class="py-2.25 px-4.5 rounded-xl text-sm font-semibold bg-(--accent) border-0 text-(--on-accent) cursor-pointer transition-all duration-150 inline-flex items-center gap-1.5 font-[inherit] hover:bg-(--accent-strong)"
+          >
+            Retry Challenge
+          </button>
+        } @else {
+          <button
+            (click)="startExercise(ex)"
+            class="py-2.25 px-4.5 rounded-xl text-sm font-semibold bg-(--accent) border-0 text-(--on-accent) cursor-pointer transition-all duration-150 inline-flex items-center gap-1.5 font-[inherit] hover:bg-(--accent-strong)"
+          >
+            <app-icon name="play" [size]="14" />
+            Start Challenge
+          </button>
+        }
+      </div>
+    </app-modal>
+  }
+  <!-- documents drawer -->
+  <app-drawer
+    [open]="docsOpen()"
+    title="Course Documents"
+    [subtitle]="api.documentCount() + '/10 uploaded'"
+    (closed)="docsOpen.set(false)"
+  >
+    <app-doc-panel (docsChanged)="api.documentCount.set($event)" />
+  </app-drawer>
+</app-sidebar-layout>

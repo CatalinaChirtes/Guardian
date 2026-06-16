@@ -1,0 +1,84 @@
+<!-- student message -->
+@if (msg().role === 'student') {
+  <div class="flex justify-end pl-[16%] fade-in">
+    <div class="bg-(--accent) text-white py-3 px-4 rounded-tl-2xl rounded-tr-2xl rounded-br-sm rounded-bl-2xl shadow-(--shadow-sm)">
+      <div [innerHTML]="msg().content | markdown" class="prose prose-white text-sm leading-[1.55]"></div>
+    </div>
+  </div>
+}
+
+<!-- tutor message -->
+@if (msg().role === 'tutor') {
+  <div class="flex gap-3 pr-[8%] fade-in">
+    <img src="assets/images/orb-logo.svg" alt="" class="w-7.5 h-7.5 shrink-0 mt-0.5" />
+
+    <div class="max-w-[85%]">
+      <!-- badge -->
+      @if (msg().mode) {
+        <div class="mb-2">
+          @switch (msg().mode) {
+            @case ('theory') {
+              <app-badge label="Theory" variant="theory"><app-icon name="highlighter" [size]="11" /></app-badge>
+            }
+            @case ('socratic') {
+              <app-badge label="Socratic Hint" variant="socratic"><app-icon name="compass" [size]="11" /></app-badge>
+            }
+            @case ('puzzle') {
+              <app-badge label="Puzzle" variant="puzzle"><app-icon name="star-four" [size]="11" /></app-badge>
+            }
+            @case ('puzzle_result') {
+              <app-badge label="Puzzle" variant="puzzle"><app-icon name="star-four" [size]="11" /></app-badge>
+            }
+            @case ('code_police_fallback') {
+              <app-badge label="Socratic Hint" variant="socratic"><app-icon name="compass" [size]="11" /></app-badge>
+            }
+            @case ('error') {
+              <app-badge label="Error" variant="rose" />
+            }
+            @default {
+              <app-badge [label]="msg().mode!" variant="default" />
+            }
+          }
+        </div>
+      }
+
+      <!-- content bubble -->
+      <div class="bg-(--surface) border border-(--border) rounded-tl-sm rounded-tr-2xl rounded-br-2xl rounded-bl-2xl py-3 px-4 shadow-(--shadow-sm)">
+        <div [innerHTML]="msg().content | markdown" class="prose"></div>
+
+        <!-- sources (theory mode) -->
+        @if (msg().sources && msg().role === 'tutor' && msg().mode !== 'puzzle') {
+          <div class="mt-3 pt-2.75 border-t border-(--border)">
+            <div class="flex items-center gap-1">
+              <app-icon name="file" [size]="14" class="text-(--emerald)" />
+              <span class="text-[0.65rem] font-bold tracking-[0.09em] text-(--emerald) uppercase">Sources</span>
+            </div>
+            <span class="text-xs text-(--text-2) whitespace-pre-line mt-1 block">{{ msg().sources }}</span>
+          </div>
+        }
+      </div>
+
+      <!-- feedback buttons -->
+      @if (msg().id) {
+        <div class="flex gap-1 mt-2.5">
+          <button
+            class="w-7 h-7 rounded-xl grid place-items-center border-none cursor-pointer p-0 transition-[background,color] duration-150"
+            [ngClass]="activeFeedback() === 'thumbs_up' ? 'text-(--emerald) bg-(--emerald-soft) hover:bg-(--emerald-soft)' : 'text-(--text-3) bg-transparent hover:bg-(--sidebar-hover)'"
+            (click)="onFeedback('thumbs_up')"
+            title="Helpful"
+          >
+            <app-icon name="thumbs-up" [size]="14" />
+          </button>
+          <button
+            class="w-7 h-7 rounded-xl grid place-items-center border-none cursor-pointer p-0 transition-[background,color] duration-150"
+            [ngClass]="activeFeedback() === 'thumbs_down' ? 'text-(--rose) bg-(--rose-soft) hover:bg-(--rose-soft)' : 'text-(--text-3) bg-transparent hover:bg-(--sidebar-hover)'"
+            (click)="onFeedback('thumbs_down')"
+            title="Not helpful"
+          >
+            <app-icon name="thumbs-down" [size]="14" />
+          </button>
+        </div>
+      }
+    </div>
+  </div>
+}

@@ -1,0 +1,40 @@
+<div class="bg-(--surface) rounded-2xl overflow-hidden shadow-(--shadow-sm) pop-in border border-(--border-amber-bold)">
+  <div class="py-3 px-4 bg-(--amber-soft) flex gap-2.5 items-start border-b border-b-(--border-amber)">
+    <app-icon name="star-four" [size]="20" class="text-(--amber) shrink-0 mt-px" />
+    <div>
+      <div class="text-sm font-bold text-(--amber)">Parsons Puzzle</div>
+      <div class="text-xs text-(--text-2)">Drag the lines into the correct order.</div>
+    </div>
+  </div>
+
+  <!-- draggable lines -->
+  <div
+    cdkDropList
+    (cdkDropListDropped)="drop($event)"
+    class="flex flex-col gap-1.5 p-3.5"
+  >
+    @for (line of orderedLines(); track $index) {
+      <div cdkDrag class="puzzle-line py-2 px-3 rounded-xl bg-(--surface-2) border border-(--border) flex gap-2.5 items-center cursor-grab active:cursor-grabbing transition-[background] duration-[120ms] text-sm">
+        <app-icon name="dots-six-vertical" [size]="14" class="shrink-0 text-(--text-3)" />
+        <span class="mono">{{ line }}</span>
+      </div>
+    }
+  </div>
+
+  <div class="flex items-center gap-3 pt-0 px-3.5 pb-3.5">
+    <button
+      class="inline-flex items-center gap-1.5 py-2 px-3 rounded-xl text-sm font-semibold bg-(--accent) text-(--on-accent) border-none cursor-pointer"
+      (click)="onSubmit()"
+    >
+      <app-icon name="check" />
+      Check answer
+    </button>
+
+    @if (result() === 'correct') {
+      <span class="text-sm font-bold text-(--emerald)">Correct! Well done!</span>
+    }
+    @if (result() === 'incorrect') {
+      <span class="text-sm font-bold text-(--rose)">Not quite right. Try again!</span>
+    }
+  </div>
+</div>

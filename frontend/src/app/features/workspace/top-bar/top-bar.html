@@ -1,0 +1,85 @@
+<ng-template #editorControls>
+  <div class="inline-flex h-9 p-0.75 gap-0.5 bg-(--surface-2) border border-(--border) rounded-xl items-center">
+    <button
+      class="inline-flex items-center gap-1.25 py-1 px-3 text-xs font-semibold border-none rounded-xl cursor-pointer hover:text-(--text) transition-[background,color,box-shadow] duration-150"
+      [ngClass]="splitMode() ? 'bg-(--surface) text-(--text) shadow-(--shadow-sm)' : 'bg-transparent text-(--text-2)'"
+      (click)="splitModeChange.emit(true)"
+    >
+      <app-icon name="sidebar-simple" [size]="14" />
+      Split
+    </button>
+    <button
+      class="inline-flex items-center gap-1.25 py-1 px-3 text-xs font-semibold border-none rounded-xl cursor-pointer hover:text-(--text) transition-[background,color,box-shadow] duration-150"
+      [ngClass]="!splitMode() ? 'bg-(--surface) text-(--text) shadow-(--shadow-sm)' : 'bg-transparent text-(--text-2)'"
+      (click)="splitModeChange.emit(false)"
+    >
+      <app-icon name="chat-circle" [size]="14" />
+      Chat
+    </button>
+  </div>
+  <button
+    class="inline-flex items-center justify-center w-9 h-9 rounded-xl border-none bg-transparent text-(--text-3) cursor-pointer transition-all duration-150 hover:bg-(--sidebar-hover) hover:text-(--text)"
+    (click)="closeEditor.emit()"
+    title="Close editor"
+  >
+    <app-icon name="x" />
+  </button>
+</ng-template>
+
+@if (mobileMode()) {
+  <!-- mobile/tablet - editor controls + LLM selector (tablet only) -->
+  <div class="flex items-center gap-2">
+    <!-- LLM selector - tablet only -->
+    <div class="hidden sm:max-lg:block">
+      <app-llm-provider-pill
+        [provider]="provider()"
+        (providerChange)="providerChange.emit($event)"
+      />
+    </div>
+    @if (!editorOpen()) {
+      <button
+        class="inline-flex items-center gap-1.5 h-9 px-4 rounded-xl text-sm font-semibold text-(--text-2) bg-transparent border border-(--border-strong) cursor-pointer transition-all duration-150 hover:bg-(--sidebar-hover) hover:text-(--text)"
+        (click)="openEditor.emit()"
+      >
+        <app-icon name="brackets-angle" [size]="14" />
+        Open editor
+      </button>
+    } @else {
+      <ng-container *ngTemplateOutlet="editorControls" />
+    }
+  </div>
+} @else {
+  <!-- full top bar - mobile (LLM only) + desktop (LLM + editor controls) -->
+  <div class="flex sm:hidden lg:flex items-center gap-3 p-4 border-b border-(--border) bg-(--canvas)">
+    <!-- left - LLM selector + challenge pill -->
+    <div class="flex items-center gap-2 shrink-0">
+      <app-llm-provider-pill
+        [provider]="provider()"
+        (providerChange)="providerChange.emit($event)"
+      />
+      @if (exerciseId()) {
+        <div class="inline-flex items-center gap-1.25 py-1.25 pr-2.75 pl-2.25 rounded-full bg-(--accent-soft) text-xs font-semibold text-(--accent-strong) border border-(--border-accent-bold)">
+          <app-icon name="star-four" [size]="12" />
+          <span>Challenge &middot; #{{ exerciseId() }}</span>
+        </div>
+      }
+    </div>
+
+    <div class="flex-1"></div>
+
+    <!-- right - open editor or split/chat + x (desktop only, mobile uses mobile header) -->
+    <div class="hidden lg:flex items-center gap-1.5">
+      @if (!editorOpen()) {
+        <button
+          class="inline-flex items-center gap-1.5 h-9 px-4 rounded-xl text-sm font-semibold text-(--text-2) bg-transparent border border-(--border-strong) cursor-pointer transition-all duration-150 hover:bg-(--sidebar-hover) hover:text-(--text)"
+          (click)="openEditor.emit()"
+        >
+          <app-icon name="brackets-angle" [size]="14" />
+          Open editor
+        </button>
+      } @else {
+        <ng-container *ngTemplateOutlet="editorControls" />
+      }
+    </div>
+  </div>
+}

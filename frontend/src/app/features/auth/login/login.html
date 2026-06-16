@@ -1,0 +1,73 @@
+<app-auth-layout>
+  <div class="flex flex-col gap-6">
+    <div class="flex flex-col gap-2.5">
+      <span class="text-4xl font-extrabold tracking-[-.035em] leading-[1.05] text-(--text)">Hints,<br>not answers.</span>
+      <span class="text-base text-(--text-2) leading-normal">
+        Sign in to keep learning with Guardian, your 24/7 Socratic programming tutor.
+      </span>
+    </div>
+
+    @if (error()) {
+      <div class="py-3 px-3.5 rounded-xl text-(--rose) text-sm font-semibold bg-(--rose-soft) border border-(--border-rose)">{{ error() }}</div>
+    }
+
+    <form (ngSubmit)="onLogin()" class="flex flex-col gap-4.5">
+      <app-auth-field label="Email" icon="envelope-simple" fieldId="email">
+        <input
+          id="email"
+          type="email"
+          [(ngModel)]="email"
+          name="email"
+          required
+          placeholder="your.email@example.com"
+          class="flex-1 border-none bg-transparent text-(--text) text-sm outline-none min-w-0 placeholder:text-(--text-3)"
+        />
+      </app-auth-field>
+
+      <div class="flex flex-col gap-1.75">
+        <div class="flex items-center justify-between">
+          <label for="password" class="text-xs font-semibold text-(--text-2)">Password</label>
+          <a routerLink="/forgot-password" class="text-xs font-semibold text-(--accent-strong) no-underline hover:underline">Forgot password?</a>
+        </div>
+        <div class="h-11.5 px-3.25 flex items-center gap-2.5 bg-(--surface) border border-(--border-strong) rounded-xl transition-all duration-150" [ngClass]="passwordFocused() ? 'border-(--accent) shadow-[0_0_0_0.1875rem_var(--accent-ring)]' : ''">
+          <app-icon name="lock-simple" class="shrink-0 transition-colors duration-150 text-(--text-3)" [ngClass]="passwordFocused() ? 'text-(--accent)' : ''" />
+          <input
+            id="password"
+            [type]="showPassword() ? 'text' : 'password'"
+            [(ngModel)]="password"
+            name="password"
+            required
+            class="flex-1 border-none bg-transparent text-(--text) text-sm outline-none min-w-0 placeholder:text-(--text-3)"
+            (focus)="passwordFocused.set(true)"
+            (blur)="passwordFocused.set(false)"
+          />
+          <button
+            type="button"
+            (click)="showPassword.update(v => !v)"
+            class="flex items-center justify-center bg-none border-none p-0 cursor-pointer text-(--text-3) shrink-0 transition-colors duration-150 hover:text-(--text-2)"
+          >
+            @if (showPassword()) {
+              <app-icon name="eye-slash" />
+            } @else {
+              <app-icon name="eye" />
+            }
+          </button>
+        </div>
+      </div>
+
+      <button
+        type="submit"
+        [disabled]="loading()"
+        class="w-full py-3 px-5 rounded-xl text-base font-semibold bg-(--accent) text-(--on-accent) border-none cursor-pointer transition-opacity duration-150 disabled:cursor-not-allowed"
+        [ngClass]="loading() ? 'opacity-80' : ''"
+      >
+        {{ loading() ? 'Signing in…' : 'Sign in' }}
+      </button>
+    </form>
+
+    <div class="flex gap-3 pt-2.5 pr-2.5 pb-2.5 pl-4.5 border border-(--border-strong) rounded-2xl items-center">
+      <span class="text-sm font-semibold text-(--text-2) flex-1">New to Guardian?</span>
+      <a routerLink="/register" class="inline-block py-2 px-4 rounded-xl text-sm font-bold text-(--text) bg-(--surface) border border-(--border-strong) no-underline transition-colors duration-150 hover:bg-(--border)">Register</a>
+    </div>
+  </div>
+</app-auth-layout>
