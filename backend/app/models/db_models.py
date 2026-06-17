@@ -30,7 +30,7 @@ class TutorSession(Base):
         UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
     )
     user_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("users.id"), nullable=False, index=True
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True
     )
     session_type: Mapped[str] = mapped_column(String(20), nullable=False, default="chat")
     exercise_id: Mapped[str | None] = mapped_column(String(100))
@@ -57,7 +57,7 @@ class ChatMessage(Base):
         UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
     )
     session_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("tutor_sessions.id"), nullable=False, index=True
+        UUID(as_uuid=True), ForeignKey("tutor_sessions.id", ondelete="CASCADE"), nullable=False, index=True
     )
     role: Mapped[str] = mapped_column(String(20), nullable=False)
     content: Mapped[str] = mapped_column(Text, nullable=False)
@@ -83,10 +83,10 @@ class CodeSnapshot(Base):
         UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
     )
     session_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("tutor_sessions.id"), nullable=False, index=True
+        UUID(as_uuid=True), ForeignKey("tutor_sessions.id", ondelete="CASCADE"), nullable=False, index=True
     )
     message_id: Mapped[uuid.UUID | None] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("chat_messages.id")
+        UUID(as_uuid=True), ForeignKey("chat_messages.id", ondelete="CASCADE")
     )
     code: Mapped[str] = mapped_column(Text, nullable=False)
     language: Mapped[str | None] = mapped_column(String(20))
@@ -104,13 +104,13 @@ class FeedbackEvent(Base):
         UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
     )
     session_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("tutor_sessions.id"), nullable=False, index=True
+        UUID(as_uuid=True), ForeignKey("tutor_sessions.id", ondelete="CASCADE"), nullable=False, index=True
     )
     message_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("chat_messages.id"), nullable=False, index=True
+        UUID(as_uuid=True), ForeignKey("chat_messages.id", ondelete="CASCADE"), nullable=False, index=True
     )
     user_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("users.id"), nullable=False, index=True
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True
     )
     feedback_type: Mapped[str] = mapped_column(String(20), nullable=False)
     value: Mapped[str | None] = mapped_column(Text)
@@ -127,10 +127,10 @@ class ParsonsPuzzleEvent(Base):
         UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
     )
     session_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("tutor_sessions.id"), nullable=False, index=True
+        UUID(as_uuid=True), ForeignKey("tutor_sessions.id", ondelete="CASCADE"), nullable=False, index=True
     )
     user_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("users.id"), nullable=False, index=True
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True
     )
     correct_order: Mapped[list] = mapped_column(JSONB, nullable=False)
     student_order: Mapped[list | None] = mapped_column(JSONB)
@@ -149,7 +149,7 @@ class CurriculumDocument(Base):
         UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
     )
     user_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("users.id"), nullable=False, index=True
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True
     )
     filename: Mapped[str] = mapped_column(String(500), nullable=False)
     chunk_count: Mapped[int] = mapped_column(Integer, default=0)
@@ -174,10 +174,10 @@ class ResearchEvent(Base):
         UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
     )
     user_id: Mapped[uuid.UUID | None] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("users.id"), index=True
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), index=True
     )
     session_id: Mapped[uuid.UUID | None] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("tutor_sessions.id"), index=True
+        UUID(as_uuid=True), ForeignKey("tutor_sessions.id", ondelete="CASCADE"), index=True
     )
     event_type: Mapped[str] = mapped_column(String(50), nullable=False)
     payload: Mapped[dict | None] = mapped_column(JSONB)
