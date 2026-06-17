@@ -2,6 +2,7 @@ import { Component, computed, input, output, signal } from '@angular/core';
 import { NgClass } from '@angular/common';
 import { IconComponent } from '../icon/icon';
 import { DropdownComponent } from '../dropdown/dropdown';
+import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-llm-provider-pill',
@@ -45,7 +46,7 @@ export class LlmProviderPillComponent {
     { value: 'anthropic', label: 'Claude Haiku 4.5', local: false, hint: 'Anthropic', logo: 'assets/images/Claude_logo.svg', darkInvert: false },
     { value: 'ollama-qwen', label: 'Qwen 2.5 3B', local: true, hint: 'Local', logo: 'assets/images/Ollama_logo.svg', darkInvert: true },
     { value: 'ollama-gemma', label: 'Gemma 3 4B', local: true, hint: 'Local', logo: 'assets/images/Ollama_logo.svg', darkInvert: true },
-  ];
+  ].filter(p => !environment.production || !p.local);
 
   selectProvider(value: string): void {
     this.providerChange.emit(value);
