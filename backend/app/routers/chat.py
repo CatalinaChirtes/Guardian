@@ -192,6 +192,7 @@ async def _persist_response(
             "mode": result.mode,
             "challenge_solved": result.challenge_solved,
             "sources": result.sources,
+            "code_police_triggered": result.code_police_triggered,
         })
     )
 

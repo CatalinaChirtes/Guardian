@@ -3,8 +3,32 @@ import random
 from app.services.llm.base import LLMProvider
 
 
+def _is_code_line(line: str) -> bool:
+    stripped = line.strip()
+    if not stripped:
+        return False
+    if stripped.startswith("#"):
+        return False
+    if stripped in ('"""', "'''"):
+        return False
+    if stripped.startswith(":type") or stripped.startswith(":rtype") or stripped.startswith(":param"):
+        return False
+    return True
+
+
 def generate_puzzle(correct_code: str) -> dict:
-    lines = [line for line in correct_code.split("\n") if line.strip()]
+    in_docstring = False
+    filtered = []
+    for line in correct_code.split("\n"):
+        stripped = line.strip()
+        if stripped in ('"""', "'''"):
+            in_docstring = not in_docstring
+            continue
+        if in_docstring:
+            continue
+        if _is_code_line(line):
+            filtered.append(line)
+    lines = filtered
     correct_order = list(lines)
     shuffled = list(lines)
     random.shuffle(shuffled)

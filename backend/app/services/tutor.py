@@ -181,7 +181,11 @@ async def generate_tutor_response(
         )
         messages.append({"role": "system", "content": system_prompt})
     messages.extend(state.history_window)
-    messages.append({"role": "user", "content": user_query})
+    
+    user_content = user_query
+    if not settings.enable_socratic_prompt and has_code:
+        user_content = f"{user_query}\n\nMy code:\n```\n{student_code}\n```"
+    messages.append({"role": "user", "content": user_content})
 
     llm_response = await provider.generate(messages=messages, temperature=0.6)
     response_text = llm_response.content
