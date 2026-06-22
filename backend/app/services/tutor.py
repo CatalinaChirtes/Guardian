@@ -187,7 +187,8 @@ async def generate_tutor_response(
         user_content = f"{user_query}\n\nMy code:\n```\n{student_code}\n```"
     messages.append({"role": "user", "content": user_content})
 
-    llm_response = await provider.generate(messages=messages, temperature=0.6)
+    max_tokens = 4096 if not settings.enable_socratic_prompt else 1024
+    llm_response = await provider.generate(messages=messages, temperature=0.6, max_tokens=max_tokens)
     response_text = llm_response.content
 
     code_police_triggered = False
