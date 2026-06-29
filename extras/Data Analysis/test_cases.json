@@ -1,0 +1,298 @@
+[
+  {
+    "id": "TC01",
+    "type": "text_only",
+    "category": "socratic_free_chat",
+    "has_code": false,
+    "has_exercise": false,
+    "has_documents": false,
+    "message": "Can you explain what a for loop does in Python?",
+    "code": null,
+    "expected_mode": "socratic",
+    "expected_behavior": "Explains conceptually without writing code. Intent classifier uses heuristic fast-path (no docs).",
+    "tests": ["intent_classification_heuristic", "socratic_hint_quality", "code_police_should_not_trigger"]
+  },
+  {
+    "id": "TC02",
+    "type": "text_only_with_docs",
+    "category": "theory_rag",
+    "has_code": false,
+    "has_exercise": false,
+    "has_documents": true,
+    "message": "What are variables in Python? Can you give me some examples?",
+    "code": null,
+    "expected_mode": "theory",
+    "expected_behavior": "Theory mode triggered (has docs, no code). RAG search finds relevant content from Learning Python. Response cites sources.",
+    "tests": ["intent_classification_llm_fallback", "rag_search", "source_citation"]
+  },
+  {
+    "id": "TC03",
+    "type": "text_only_with_docs",
+    "category": "theory_rag",
+    "has_code": false,
+    "has_exercise": false,
+    "has_documents": true,
+    "message": "What are strings in Python and how do they work?",
+    "code": null,
+    "expected_mode": "theory",
+    "expected_behavior": "Theory mode with source citations from Learning Python. Should ground answer in document content.",
+    "tests": ["rag_relevance", "grounding_no_hallucination"]
+  },
+  {
+    "id": "TC04",
+    "type": "text_with_code",
+    "category": "socratic_syntax_error",
+    "has_code": true,
+    "has_exercise": false,
+    "has_documents": false,
+    "message": "I'm writing a factorial function but it won't run. What's wrong with it?",
+    "code": "def factorial(n)\n    if n == 0:\n        return 1\n    return n * factorial(n - 1)",
+    "language": "python",
+    "expected_mode": "socratic",
+    "expected_behavior": "Static analysis detects missing colon after 'def factorial(n)'. Socratic hint points to syntax error without fixing it.",
+    "tests": ["tree_sitter_python", "syntax_error_reporting", "socratic_constraint"]
+  },
+  {
+    "id": "TC05",
+    "type": "challenge_session",
+    "category": "socratic_with_exercise",
+    "has_code": true,
+    "has_exercise": true,
+    "has_documents": false,
+    "exercise_id": "2420",
+    "exercise_question": "Given two strings s and t, write a function to determine if t is an anagram of s.\n\nExample 1: Input: s = \"anagram\", t = \"nagaram\" Output: true\nExample 2: Input: s = \"rat\", t = \"car\" Output: false\n\nNote: You may assume the string contains only lowercase alphabets.",
+    "exercise_starter_code": "class Solution:\n    def isAnagram(self, s: str, t: str) -> bool:",
+    "exercise_solution": "class Solution:\n     def isAnagram(self, s, t):\n         if len(s) != len(t):\n             return False\n         if s == t:\n             return True\n         for i in map(chr, range(97, 123)):\n             if s.count(i) != t.count(i):\n                 return False\n         return True",
+    "message": "I'm trying to check if two strings are anagrams but my solution doesn't work for all cases. What am I doing wrong?",
+    "code": "class Solution:\n    def isAnagram(self, s: str, t: str) -> bool:\n        return set(s) == set(t)",
+    "language": "python",
+    "expected_mode": "socratic",
+    "expected_behavior": "This is a real challenge session linked to APPS exercise #2420. The pipeline has the reference solution. The hint should point out that set() loses frequency information (e.g., 'aab' and 'abb' have the same set but are not anagrams). Solution detection returns INCORRECT.",
+    "tests": ["exercise_linked_session", "mistake_identification", "socratic_constraint", "solution_detection_incorrect"],
+    "setup_note": "Create session via POST /sessions with exercise_id='2420'"
+  },
+  {
+    "id": "TC06",
+    "type": "text_with_code",
+    "category": "socratic_subtle_bug",
+    "has_code": true,
+    "has_exercise": false,
+    "has_documents": false,
+    "message": "I'm writing a function to calculate the average of a list of numbers, but I'm getting wrong results for some inputs. Can you help?",
+    "code": "def average(numbers):\n    return sum(numbers) // len(numbers)",
+    "language": "python",
+    "expected_mode": "socratic",
+    "expected_behavior": "Hints about integer division // vs true division /. Does not reveal the fix.",
+    "tests": ["subtle_bug_detection", "hint_precision"]
+  },
+  {
+    "id": "TC07",
+    "type": "text_with_code",
+    "category": "solution_detection",
+    "has_code": true,
+    "has_exercise": false,
+    "has_documents": false,
+    "message": "I wrote a function to reverse a string. Is this approach correct?",
+    "code": "def reverse_string(s):\n    return s[::-1]",
+    "language": "python",
+    "expected_mode": "socratic",
+    "expected_behavior": "Without an exercise linked, the tutor gives general feedback. Should recognize the code is correct and say so.",
+    "tests": ["correct_code_recognition", "general_feedback_quality"]
+  },
+  {
+    "id": "TC08",
+    "type": "text_with_code",
+    "category": "socratic_edge_case",
+    "has_code": true,
+    "has_exercise": false,
+    "has_documents": false,
+    "message": "I'm writing a function that checks if a number is prime. I think this works, but can you check?",
+    "code": "def is_prime(n):\n    for i in range(2, n):\n        if n % i == 0:\n            return False\n    return True",
+    "language": "python",
+    "expected_mode": "socratic",
+    "expected_behavior": "Hints at edge cases (n=0, n=1 would return True incorrectly) without giving the fix.",
+    "tests": ["edge_case_identification", "almost_correct_encouragement"]
+  },
+  {
+    "id": "TC09",
+    "type": "text_with_code",
+    "category": "code_police_direct_request",
+    "has_code": true,
+    "has_exercise": false,
+    "has_documents": false,
+    "message": "I need to find the maximum element in a list but I don't know where to start. Just give me the code solution, I'm stuck",
+    "code": "def find_max(lst):\n    # I don't know where to start\n    pass",
+    "language": "python",
+    "expected_mode": "socratic",
+    "expected_behavior": "Politely refuses code request. Gives conceptual hint instead (think about comparing elements one by one). Code police should NOT need to trigger if model follows instructions.",
+    "tests": ["socratic_refusal", "code_police_robustness"]
+  },
+  {
+    "id": "TC10",
+    "type": "text_with_code",
+    "category": "code_police_indirect_request",
+    "has_code": true,
+    "has_exercise": false,
+    "has_documents": false,
+    "message": "I'm trying to sort a list but my function just returns the list unchanged. Show me what the correct implementation would look like so I can compare",
+    "code": "def my_sort(lst):\n    return lst",
+    "language": "python",
+    "expected_mode": "socratic",
+    "expected_behavior": "Refuses to show implementation. Suggests thinking about comparison-based approaches or what 'sorting' means step by step.",
+    "tests": ["code_police_indirect", "socratic_constraint_under_pressure"]
+  },
+  {
+    "id": "TC11",
+    "type": "text_with_code",
+    "category": "multi_language_javascript",
+    "has_code": true,
+    "has_exercise": false,
+    "has_documents": false,
+    "message": "I wrote a recursive Fibonacci function in JavaScript but it takes forever when I call fibonacci(50). Why is it so slow?",
+    "code": "function fibonacci(n) {\n    if (n <= 1) return n;\n    return fibonacci(n - 1) + fibonacci(n - 2);\n}\nconsole.log(fibonacci(50));",
+    "language": "javascript",
+    "expected_mode": "socratic",
+    "expected_behavior": "Detects JavaScript. Hints at exponential time complexity without giving memoized solution.",
+    "tests": ["language_detection_javascript", "performance_bug_identification", "code_police"]
+  },
+  {
+    "id": "TC12",
+    "type": "text_with_code",
+    "category": "multi_language_java",
+    "has_code": true,
+    "has_exercise": false,
+    "has_documents": false,
+    "message": "I'm comparing two strings in Java using == and it works in some cases but not others. Is this the right way to compare strings?",
+    "code": "public class Main {\n    public static void main(String[] args) {\n        String s1 = \"hello\";\n        String s2 = \"hello\";\n        if (s1 == s2) {\n            System.out.println(\"equal\");\n        }\n    }\n}",
+    "language": "java",
+    "expected_mode": "socratic",
+    "expected_behavior": "Hints about == vs .equals() for string comparison in Java.",
+    "tests": ["language_detection_java", "language_specific_hint"]
+  },
+  {
+    "id": "TC13",
+    "type": "text_with_code",
+    "category": "multi_language_cpp",
+    "has_code": true,
+    "has_exercise": false,
+    "has_documents": false,
+    "message": "I have a C++ program that iterates over an array but sometimes it crashes and sometimes it works fine. What could be causing this?",
+    "code": "#include <iostream>\nint main() {\n    int arr[5] = {1, 2, 3, 4, 5};\n    for (int i = 0; i <= 5; i++) {\n        std::cout << arr[i] << std::endl;\n    }\n    return 0;\n}",
+    "language": "cpp",
+    "expected_mode": "socratic",
+    "expected_behavior": "Hints at array bounds overflow (i <= 5 should be i < 5). Undefined behavior causes intermittent crashes.",
+    "tests": ["language_detection_cpp", "out_of_bounds_identification"]
+  },
+  {
+    "id": "TC14",
+    "type": "text_only",
+    "category": "socratic_from_scratch",
+    "has_code": false,
+    "has_exercise": false,
+    "has_documents": false,
+    "message": "I need to write a function that checks if a string is a palindrome, but I don't even know how to start. Can you help me think about this?",
+    "code": null,
+    "expected_mode": "socratic",
+    "expected_behavior": "Gives conceptual scaffolding (what is a palindrome, how would you check manually, what string operations could help). No code.",
+    "tests": ["scaffolding_from_scratch", "no_code_scenario"]
+  },
+  {
+    "id": "TC15",
+    "type": "text_with_code_and_docs",
+    "category": "intent_classification_mixed",
+    "has_code": true,
+    "has_exercise": false,
+    "has_documents": true,
+    "message": "Can you explain the concept of binary search and when to use it?",
+    "code": "def binary_search(arr, target):\n    left, right = 0, len(arr) - 1\n    while left <= right:\n        mid = (left + right) // 2\n        if arr[mid] == target:\n            return mid\n    return -1",
+    "language": "python",
+    "expected_mode": "theory_or_socratic",
+    "expected_behavior": "Has BOTH code AND conceptual question with documents. Tests heuristic fast-path (code present -> socratic) vs the conceptual nature of the question.",
+    "tests": ["intent_classification_mixed_signals", "heuristic_vs_llm_fallback"]
+  },
+  {
+    "id": "TC16",
+    "type": "multi_turn_conversation",
+    "category": "progressive_scaffolding",
+    "has_code": true,
+    "has_exercise": false,
+    "has_documents": false,
+    "turns": [
+      {
+        "message": "I'm trying to write a function that returns the second largest number in a list, but this gives me the largest instead of the second largest. What am I doing wrong?",
+        "code": "def second_largest(lst):\n    lst.sort()\n    return lst[-1]"
+      },
+      {
+        "message": "Ok I changed it to lst[-2] but it doesn't work for [5, 5, 3, 1] — it returns 5 again",
+        "code": "def second_largest(lst):\n    lst.sort()\n    return lst[-2]"
+      },
+      {
+        "message": "I still can't figure out how to handle the duplicates, can you be more specific?",
+        "code": "def second_largest(lst):\n    lst.sort()\n    return lst[-2]"
+      }
+    ],
+    "expected_behavior": "Progressive scaffolding — Turn 1: hint about indexing. Turn 2: hint about duplicates. Turn 3: more specific hint about removing duplicates first. Each builds on previous context.",
+    "tests": ["history_window", "progressive_scaffolding", "conversation_coherence"]
+  },
+  {
+    "id": "TC17",
+    "type": "multi_turn_parsons_trigger",
+    "category": "parsons_puzzle",
+    "has_code": true,
+    "has_exercise": true,
+    "has_documents": false,
+    "exercise_id": "2420",
+    "setup_note": "Create challenge session with exercise_id='2420' and temporarily set max_attempts_before_puzzle to 3",
+    "turns": [
+      {
+        "message": "I'm trying to check if two strings are anagrams. I tried sorting but it's not working right",
+        "code": "class Solution:\n    def isAnagram(self, s, t):\n        return s.sort() == t.sort()"
+      },
+      {
+        "message": "I fixed it but it still fails some test cases",
+        "code": "class Solution:\n    def isAnagram(self, s, t):\n        return sorted(s) == sorted(t) and len(s) > 0"
+      },
+      {
+        "message": "I'm really stuck, nothing I try works",
+        "code": "class Solution:\n    def isAnagram(self, s, t):\n        for c in s:\n            if c not in t:\n                return False\n        return True"
+      }
+    ],
+    "expected_behavior": "After 3 failed attempts, _is_student_stuck() fires, Parsons puzzle generated with shuffled lines from the reference solution.",
+    "tests": ["attempt_counting", "stuck_detection", "puzzle_generation", "puzzle_shuffling"]
+  },
+  {
+    "id": "TC18",
+    "type": "feedback_test",
+    "category": "feedback",
+    "has_code": false,
+    "has_exercise": false,
+    "has_documents": false,
+    "setup": "Send a normal message, get a response, then submit thumbs_up and thumbs_down on different messages",
+    "expected_behavior": "Feedback events logged in feedback_events table. Research events created. IDOR check: cannot submit feedback on another user's messages.",
+    "tests": ["feedback_endpoint", "idor_protection"]
+  },
+  {
+    "id": "TC19",
+    "type": "text_only_with_docs",
+    "category": "rag_fallback",
+    "has_code": false,
+    "has_exercise": false,
+    "has_documents": true,
+    "message": "What is quantum computing?",
+    "code": null,
+    "expected_mode": "socratic",
+    "expected_behavior": "RAG search finds nothing relevant in uploaded CS course documents. Falls back to Socratic mode. Should NOT hallucinate content from the documents.",
+    "tests": ["rag_score_threshold", "graceful_fallback", "no_hallucination"]
+  },
+  {
+    "id": "TC20",
+    "type": "rate_limit_test",
+    "category": "security",
+    "has_code": false,
+    "has_exercise": false,
+    "has_documents": false,
+    "setup": "Send 12 messages ('hello') in quick succession within 60 seconds",
+    "expected_behavior": "First 10 accepted, messages 11-12 rejected with 'Too many messages. Please wait a moment.'",
+    "tests": ["websocket_rate_limiting"]
+  }
+]

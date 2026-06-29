@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# AI Socratic Teaching Assistant - project runner
+# GUARDIAN project runner
 # usage:
 #   ./run.sh setup    - install all dependencies and run DB migrations
 #   ./run.sh start    - start both backend and frontend servers
