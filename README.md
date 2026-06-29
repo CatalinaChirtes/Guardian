@@ -78,6 +78,15 @@ ENABLE_CODE_POLICE=true
 ENABLE_RAG=true
 ```
 
+## Frontend Environment
+
+You also need to update the frontend environment files with your own Supabase credentials. Open the following files and replace the placeholder values:
+
+- `frontend/src/environments/environment.ts` (for local development)
+- `frontend/src/environments/environment.prod.ts` (for production deployment)
+
+In both files, replace `YOUR_SUPABASE_URL` with your Supabase project URL and `YOUR_SUPABASE_ANON_KEY` with your Supabase publishable (anon) key. For the production file, also update the API and WebSocket URLs to point to your deployed backend.
+
 ## Manual Setup (Step by Step)
 
 If you prefer to set things up manually instead of using `run.sh`:
